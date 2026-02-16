@@ -31,14 +31,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appState.save()
         liveTask?.cancel()
         recorder.shutdown()
-        // Free whisper context synchronously before process exits
-        // to avoid ggml_abort during teardown.
-        let semaphore = DispatchSemaphore(value: 0)
-        Task {
-            await transcriber.cleanup()
-            semaphore.signal()
-        }
-        semaphore.wait()
+        // Exit immediately to avoid ggml_abort during async teardown.
+        // The OS reclaims all process memory — no leak.
+        _exit(0)
     }
 
     func saveSettings() { appState.save() }
