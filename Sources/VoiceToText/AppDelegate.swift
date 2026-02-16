@@ -22,7 +22,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appState.restore()
         setupHotkey()
         Task { await loadModel() }
-        if !TextSimulator.hasAccessibilityPermission {
+        // Only prompt for accessibility once — don't nag on every launch.
+        if !TextSimulator.hasAccessibilityPermission && !UserDefaults.standard.bool(forKey: "accessibilityPrompted") {
+            UserDefaults.standard.set(true, forKey: "accessibilityPrompted")
             TextSimulator.requestAccessibilityPermission()
         }
     }
