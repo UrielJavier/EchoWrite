@@ -29,7 +29,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         appState.save()
+        liveTask?.cancel()
         recorder.shutdown()
+        // Free whisper context synchronously before process exits
+        // to avoid ggml_abort during teardown.
+        let semaphore = DispatchSemaphore(value: 0)
+        Task {
+            await transcriber.cleanup()
+            semaphore.signal()
+        }
+        semaphore.wait()
     }
 
     func saveSettings() { appState.save() }
