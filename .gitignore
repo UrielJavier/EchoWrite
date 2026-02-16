@@ -1,0 +1,21 @@
+# Build artifacts
+.build/
+*.o
+*.d
+
+# Xcode
+xcuserdata/
+*.xcworkspace
+DerivedData/
+
+# Binary frameworks (rebuild from whisper.cpp)
+Frameworks/
+
+# Downloaded models
+models/*.bin
+
+# macOS
+.DS_Store
+
+# Claude Code
+.claude/
