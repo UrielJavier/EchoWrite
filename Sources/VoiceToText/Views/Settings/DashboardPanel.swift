@@ -7,7 +7,7 @@ struct DashboardPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            sectionHeader("Dashboard", subtitle: "Usage statistics")
+            sectionHeader("Metrics", subtitle: "Usage statistics")
 
             // 2x2 stat cards
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {

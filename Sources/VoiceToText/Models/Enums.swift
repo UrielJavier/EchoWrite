@@ -78,10 +78,11 @@ enum SettingsSection: String, CaseIterable, Identifiable {
     case models = "Models"
     case prompt = "Prompt"
     case replacements = "Replacements"
-    case sounds = "Sounds"
+    case feedback = "Feedback"
     case recording = "Recording"
-    case dashboard = "Dashboard"
+    case dashboard = "Metrics"
     case history = "History"
+    case privacy = "Privacy"
     case about = "About"
 
     var id: String { rawValue }
@@ -92,10 +93,11 @@ enum SettingsSection: String, CaseIterable, Identifiable {
         case .models:       return "cube.box"
         case .prompt:       return "text.quote"
         case .replacements: return "arrow.2.squarepath"
-        case .sounds:       return "speaker.wave.2"
+        case .feedback:     return "bell.and.waves.left.and.right"
         case .recording:    return "waveform"
         case .dashboard:    return "chart.bar"
         case .history:      return "clock.arrow.circlepath"
+        case .privacy:      return "lock.shield"
         case .about:        return "info.circle"
         }
     }

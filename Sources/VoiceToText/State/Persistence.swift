@@ -24,6 +24,7 @@ extension AppState {
         static let liveOverlapMs = "liveOverlapMs"
         static let liveSilenceThreshold = "liveSilenceThreshold"
         static let liveSilenceTimeout = "liveSilenceTimeout"
+        static let showFloatingWindow = "showFloatingWindow"
     }
 
     private static let defaults = UserDefaults.standard
@@ -57,6 +58,7 @@ extension AppState {
         Self.defaults.set(liveOverlapMs, forKey: Keys.liveOverlapMs)
         Self.defaults.set(liveSilenceThreshold, forKey: Keys.liveSilenceThreshold)
         Self.defaults.set(liveSilenceTimeout, forKey: Keys.liveSilenceTimeout)
+        Self.defaults.set(showFloatingWindow, forKey: Keys.showFloatingWindow)
     }
 
     func restore() {
@@ -106,6 +108,9 @@ extension AppState {
         }
         if Self.defaults.object(forKey: Keys.liveSilenceTimeout) != nil {
             liveSilenceTimeout = Self.defaults.double(forKey: Keys.liveSilenceTimeout)
+        }
+        if Self.defaults.object(forKey: Keys.showFloatingWindow) != nil {
+            showFloatingWindow = Self.defaults.bool(forKey: Keys.showFloatingWindow)
         }
     }
 }

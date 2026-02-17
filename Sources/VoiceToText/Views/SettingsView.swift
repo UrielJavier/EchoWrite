@@ -49,6 +49,7 @@ struct SettingsView: View {
         .onChange(of: state.outputMode) { onSave() }
         .onChange(of: state.startSound) { onSave() }
         .onChange(of: state.stopSound) { onSave() }
+        .onChange(of: state.showFloatingWindow) { onSave() }
         .onChange(of: state.notifyOnComplete) { onSave() }
         .onChange(of: state.liveChunkInterval) { onSave() }
         .onChange(of: state.liveOverlapMs) { onSave() }
@@ -75,14 +76,16 @@ struct SettingsView: View {
             PromptPanel(state: state, onSave: onSave)
         case .replacements:
             ReplacementsPanel(state: state, onSave: onSave)
-        case .sounds:
-            SoundsPanel(state: state)
+        case .feedback:
+            FeedbackPanel(state: state)
         case .recording:
             RecordingPanel(state: state)
         case .dashboard:
             DashboardPanel(state: state, onSave: onSave)
         case .history:
             HistoryView(state: state, onSave: onSave).padding(24)
+        case .privacy:
+            PrivacyPanel(state: state)
         case .about:
             AboutPanel(state: state, onSave: onSave, onHotkeyChange: onHotkeyChange)
         }

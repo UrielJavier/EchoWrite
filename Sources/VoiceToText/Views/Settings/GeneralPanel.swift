@@ -46,11 +46,6 @@ struct GeneralPanel: View {
             }
 
             settingsCard {
-                Toggle(isOn: $state.notifyOnComplete) {
-                    settingsRow("Notify on completion", icon: "bell")
-                }
-                .toggleStyle(.switch)
-                Divider()
                 Toggle(isOn: Binding(
                     get: { SMAppService.mainApp.status == .enabled },
                     set: { v in try? v ? SMAppService.mainApp.register() : SMAppService.mainApp.unregister() }

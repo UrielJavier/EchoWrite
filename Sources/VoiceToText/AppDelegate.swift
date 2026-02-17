@@ -11,6 +11,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var liveTask: Task<Void, Never>?
     private var downloadManager: ModelDownloadManager?
     private var settingsWindow: NSWindow?
+    private var floatingWindow: NSPanel?
     private var liveSessionText = ""
     private var recordingTimer: Task<Void, Never>?
     private var windowDelegate: SettingsWindowDelegate?
@@ -149,7 +150,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Notifications
 
     private func sendNotification(text: String) {
-        guard appState.notifyOnComplete else { return }
+        guard appState.notifyOnComplete,
+              Bundle.main.bundlePath.hasSuffix(".app") else { return }
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
             guard granted else { return }
@@ -170,6 +172,63 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func cancelDownload() {
         downloadManager?.cancel()
+    }
+
+    // MARK: - Floating Recording Window
+
+    private func showFloatingWindow() {
+        guard appState.showFloatingWindow else { return }
+        guard floatingWindow == nil else {
+            floatingWindow?.orderFront(nil)
+            return
+        }
+
+        let view = FloatingRecordingView(appState: appState)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+
+        let controller = NSHostingController(rootView: view)
+
+        let panel = NSPanel(
+            contentRect: NSRect(x: 0, y: 0, width: 160, height: 60),
+            styleMask: [.nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+        panel.contentViewController = controller
+        panel.level = .screenSaver
+        panel.backgroundColor = .clear
+        panel.isOpaque = false
+        panel.isMovableByWindowBackground = true
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        panel.isReleasedWhenClosed = false
+        panel.hasShadow = true
+
+        // Restore saved position or default to bottom-center
+        let defaults = UserDefaults.standard
+        if defaults.object(forKey: "floatingWindowX") != nil {
+            let x = defaults.double(forKey: "floatingWindowX")
+            let y = defaults.double(forKey: "floatingWindowY")
+            panel.setFrameOrigin(NSPoint(x: x, y: y))
+        } else if let screen = NSScreen.main {
+            let screenFrame = screen.visibleFrame
+            let x = screenFrame.midX - 125
+            let y = screenFrame.minY + 60
+            panel.setFrameOrigin(NSPoint(x: x, y: y))
+        }
+
+        panel.makeKeyAndOrderFront(nil)
+        panel.orderFrontRegardless()
+        floatingWindow = panel
+    }
+
+    private func hideFloatingWindow() {
+        guard let panel = floatingWindow else { return }
+        // Save position
+        let frame = panel.frame
+        UserDefaults.standard.set(Double(frame.origin.x), forKey: "floatingWindowX")
+        UserDefaults.standard.set(Double(frame.origin.y), forKey: "floatingWindowY")
+        panel.close()
+        floatingWindow = nil
     }
 
     // MARK: - Settings Window
@@ -283,11 +342,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 return
             }
             do {
+                playStartSound()
+                try await Task.sleep(nanoseconds: 250_000_000)
                 try recorder.startRecording()
                 appState.status = .recording
                 appState.lastError = nil
-                playStartSound()
                 startRecordingTimer()
+                showFloatingWindow()
                 if appState.mode == .live {
                     liveSessionText = ""
                     startLiveLoop()
@@ -300,6 +361,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func stopBatchRecording() async {
+        hideFloatingWindow()
         stopRecordingTimer()
         let audioData = recorder.stopRecording()
         playStopSound()
@@ -353,6 +415,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     let maxSilenceSteps = Int(silenceTimeout / (Double(intervalNs) / 1_000_000_000))
                     if silenceSteps >= max(1, maxSilenceSteps) {
                         await MainActor.run {
+                            self.hideFloatingWindow()
                             self.stopRecordingTimer()
                             _ = self.recorder.stopRecording()
                             self.appState.status = .idle
@@ -391,6 +454,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func stopLiveRecording() async {
+        hideFloatingWindow()
         stopRecordingTimer()
         liveTask?.cancel()
         await liveTask?.value

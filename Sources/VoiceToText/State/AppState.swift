@@ -21,9 +21,10 @@ final class AppState {
     var outputMode: OutputMode = .typeText
     var hotkeyKeyCode: UInt16 = 1
     var hotkeyModifiers: UInt = NSEvent.ModifierFlags([.command, .function]).rawValue
-    var startSound: SoundEffect = .submarine
-    var stopSound: SoundEffect = .pop
+    var startSound: SoundEffect = .pop
+    var stopSound: SoundEffect = .funk
     var notifyOnComplete = false
+    var showFloatingWindow = true
 
     // Prompt fields — composed into initial_prompt for whisper
     var promptContext: String = ""
@@ -108,9 +109,10 @@ final class AppState {
         outputMode = .typeText
         hotkeyKeyCode = 1
         hotkeyModifiers = NSEvent.ModifierFlags([.command, .function]).rawValue
-        startSound = .submarine
-        stopSound = .pop
+        startSound = .pop
+        stopSound = .funk
         notifyOnComplete = false
+        showFloatingWindow = true
         promptContext = ""
         promptVocabulary = ""
         promptStyle = "Natural, conversacional"
